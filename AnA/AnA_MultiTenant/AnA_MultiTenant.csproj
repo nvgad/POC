@@ -16,4 +16,10 @@
 		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.18.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Components\Pages\Login.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
+	</ItemGroup>
+
 </Project>

@@ -1,0 +1,17 @@
+﻿@page "/Logout"
+@using System.Diagnostics
+
+<PageTitle>LOGOUT PAGE</PageTitle>
+
+<h1> You are now in the Logout Page</h1>
+
+@code{
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

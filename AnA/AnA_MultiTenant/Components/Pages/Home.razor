@@ -1,7 +1,25 @@
 ﻿@page "/"
+@using Microsoft.Graph
+@inject GraphServiceClient graphClient
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+@if (ready)
+{
+	<p>You are @MemberName !!!</p>
+}
+
+
+@code {
+	public bool ready = false;
+	public string MemberName { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+		var me = await graphClient.Me.Request().GetAsync();
+		MemberName = me.DisplayName;
+		ready = true;
+	}
+}
