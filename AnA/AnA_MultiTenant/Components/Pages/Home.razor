@@ -1,4 +1,5 @@
 ﻿@page "/"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @using Microsoft.Graph
 @inject GraphServiceClient graphClient
 
@@ -9,17 +10,27 @@
 Welcome to your new app.
 @if (ready)
 {
-	<p>You are @MemberName !!!</p>
+    <p>You are @MemberName !!!</p>
 }
 
 
 @code {
-	public bool ready = false;
-	public string MemberName { get; set; }
-	protected override async Task OnInitializedAsync()
-	{
-		var me = await graphClient.Me.Request().GetAsync();
-		MemberName = me.DisplayName;
-		ready = true;
-	}
+    public bool ready { get; set; } = false;
+    public string MemberName { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await Profile();
+    }
+
+    // [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+    // public async Task Profile()
+    // {
+    //     var me = await graphClient.Me.GetAsync();
+
+    //     MemberName = me.DisplayName;
+    //     ready = true;
+    // }
+}
+
 }
