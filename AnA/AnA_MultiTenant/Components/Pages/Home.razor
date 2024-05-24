@@ -47,13 +47,13 @@ else
         ready = true;
     }
 
-    [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+    //[AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
     public async Task Profile()
     {
-        var authcState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var claims = authcState.User.Claims;
-        var me = await GraphClient.Me.GetAsync();
-        MemberName = me.DisplayName;      
+        // var authcState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // var claims = authcState.User.Claims;
+        var admin = await GraphClient.Admin.GetAsync();
+        MemberName = admin.ToString();
         //MemberName = claims.FirstOrDefault(c => c.Type == "name")?.Value;
      
     }
