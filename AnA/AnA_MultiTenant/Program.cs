@@ -1,5 +1,6 @@
 using AnA_MultiTenant.Components;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Graph;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -25,10 +26,16 @@ string? tenantId = builder.Configuration.GetValue<string>("AzureAd:TenantId");
 string? clientId = builder.Configuration.GetValue<string>("AzureAd:ClientId");
 string? clientSecret = builder.Configuration.GetValue<string>("AzureAd:ClientSecret");
 
+//builder.Services.AddAuthorization(options =>
+//{
+//    // By default, all incoming requests will be authorized according to the default policy
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
 
-
-//upto here
-
+builder.Services.AddMicrosoftIdentityConsentHandler();
+builder.Services.AddCascadingAuthenticationState();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,7 +50,6 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

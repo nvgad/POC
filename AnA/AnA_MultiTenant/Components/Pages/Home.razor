@@ -1,36 +1,77 @@
 ﻿@page "/"
-@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
 @using Microsoft.Graph
-@inject GraphServiceClient graphClient
+@using Microsoft.Identity.Client
+@using Microsoft.Identity.Web
+@using System.Security.Claims
+@inject GraphServiceClient GraphClient
+@inject IConfiguration Configuration
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
-@if (ready)
+
+@if (claims.Count() > 0 && ready)
 {
-    <p>You are @MemberName !!!</p>
+    <p>You are @MemberName </p>
+    <ul>
+        @foreach (var claim in claims)
+        {
+            <li>@claim.Type: @claim.Value </li>
+        }
+    </ul>
+}
+else
+{
+    <p>@authMessage</p>
 }
 
 
-@code {
-    public bool ready { get; set; } = false;
-    public string MemberName { get; set; }
+@code 
+{
+    private bool ready { get; set; } = false;
+    private string MemberName { get; set; }
+    private string authMessage { get; set; }
+
+    private IEnumerable<Claim> claims = Enumerable.Empty<Claim>();
+
 
     protected override async Task OnInitializedAsync()
     {
-        //await Profile();
+        await Profile();
+        await GetClaimsPrincipalData();
+        ready = true;
     }
 
-    // [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
-    // public async Task Profile()
-    // {
-    //     var me = await graphClient.Me.GetAsync();
+    [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+    public async Task Profile()
+    {
+        var authcState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var claims = authcState.User.Claims;
+        var me = await GraphClient.Me.GetAsync();
+        MemberName = me.DisplayName;      
+        //MemberName = claims.FirstOrDefault(c => c.Type == "name")?.Value;
+     
+    }
 
-    //     MemberName = me.DisplayName;
-    //     ready = true;
-    // }
-}
+    private async Task GetClaimsPrincipalData()
+    {
+        var authState = await AuthenticationStateProvider
+            .GetAuthenticationStateAsync();
+        var user = authState.User;
 
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            authMessage = $"{user.Identity.Name} is authenticated.";
+            claims = user.Claims;
+        }
+        else
+        {
+            authMessage = "The user is NOT authenticated.";
+        }
+    }
 }
