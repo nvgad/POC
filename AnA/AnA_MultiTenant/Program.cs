@@ -12,45 +12,43 @@ using static System.Formats.Asn1.AsnWriter;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-//Added code from here
-string[]? initialScopes = builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
-    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-    .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
-    .AddInMemoryTokenCaches();
-string? tenantId = builder.Configuration.GetValue<string>("AzureAd:TenantId");
-string? clientId = builder.Configuration.GetValue<string>("AzureAd:ClientId");
-string? clientSecret = builder.Configuration.GetValue<string>("AzureAd:ClientSecret");
+//string[]? initialScopes = builder.Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
 
-var clientSecretCredential = new ClientSecretCredential(
-tenantId, clientId, clientSecret);
+//builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+//    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+//    .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
+//    .AddInMemoryTokenCaches();
+//string? tenantId = builder.Configuration.GetValue<string>("AzureAd:TenantId");
+//string? clientId = builder.Configuration.GetValue<string>("AzureAd:ClientId");
 
+//string? clientSecret = builder.Configuration.GetValue<string>("AzureAd:ClientSecret");
+//var clientSecretCredential = new ClientSecretCredential(
+//tenantId, clientId, clientSecret);
+//var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+//builder.Services.AddSingleton(graphClient);
+
+
+//var scopes = new[] { ".default" };
 //var baseUrl = string.Join("/",
 //    builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"]);
 //var scopes = builder.Configuration.GetSection("DownstreamApi:Scopes")
 //    .Get<List<string>>();
-var scopes = new[] { ".default" };
 
-var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
-builder.Services.AddSingleton(graphClient);
-
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    // By default, all incoming requests will be authorized according to the default policy
-//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-//        .RequireAuthenticatedUser()
-//        .Build();
-//});
-
-builder.Services.AddMicrosoftIdentityConsentHandler();
+builder.Services.AddAuthorization(options =>
+{
+    // By default, all incoming requests will be authorized according to the default policy
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 builder.Services.AddCascadingAuthenticationState();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -71,26 +69,26 @@ app.MapRazorComponents<App>()
 app.Run();
 
 
-GraphServiceClient InitializeGraphClientAsync()
-{
-    var MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+//GraphServiceClient InitializeGraphClientAsync()
+//{
+//    var MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-    // Values from app registration
-    var clientId = MyConfig.GetValue<string>("AzureAd:ClientId");
-    var clientSecret = MyConfig.GetValue<string>("AzureAd:ClientSecret");
+//    // Values from app registration
+//    var clientId = MyConfig.GetValue<string>("AzureAd:ClientId");
+//    var clientSecret = MyConfig.GetValue<string>("AzureAd:ClientSecret");
 
-    //var scopes = new[] { "https://graph.microsoft.com/.default" };
-    var scopes = new[] { ".default" };
+//    //var scopes = new[] { "https://graph.microsoft.com/.default" };
+//    var scopes = new[] { ".default" };
 
-    //// Multi-tenant apps can use "common",
-    //// single-tenant apps must use the tenant ID from the Azure portal
-    var tenantId = MyConfig.GetValue<string>("AzureAd:TenantId");
+//    //// Multi-tenant apps can use "common",
+//    //// single-tenant apps must use the tenant ID from the Azure portal
+//    var tenantId = MyConfig.GetValue<string>("AzureAd:TenantId");
 
-    //// https://learn.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
-    var clientSecretCredential = new ClientSecretCredential(
-        tenantId, clientId, clientSecret);
+//    //// https://learn.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
+//    var clientSecretCredential = new ClientSecretCredential(
+//        tenantId, clientId, clientSecret);
 
-    var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+//    var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
 
-    return graphClient;
-}
+//    return graphClient;
+//}

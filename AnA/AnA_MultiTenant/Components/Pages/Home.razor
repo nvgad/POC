@@ -4,16 +4,15 @@
 @using Microsoft.Identity.Client
 @using Microsoft.Identity.Web
 @using System.Security.Claims
-@inject GraphServiceClient GraphClient
 @inject IConfiguration Configuration
-@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Hello!</h1>
 
-Welcome to your new app.
+This is an example of Authentication and Authorization in a Server Side Blazor application
+using the Microsoft Identity Web library.
 
 @if (claims.Count() > 0 && ready)
 {
@@ -52,8 +51,8 @@ else
     {
         // var authcState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         // var claims = authcState.User.Claims;
-        var admin = await GraphClient.Admin.GetAsync();
-        MemberName = admin.ToString();
+        //var admin = await GraphClient.Me.GetAsync();
+        //MemberName = admin.ToString();
         //MemberName = claims.FirstOrDefault(c => c.Type == "name")?.Value;
      
     }
@@ -63,10 +62,11 @@ else
         var authState = await AuthenticationStateProvider
             .GetAuthenticationStateAsync();
         var user = authState.User;
+        MemberName = user.Identity.Name;
 
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
-            authMessage = $"{user.Identity.Name} is authenticated.";
+            authMessage = $"{MemberName} is authenticated.";
             claims = user.Claims;
         }
         else
