@@ -1,0 +1,62 @@
+﻿@page "/"
+
+@using Microsoft.Graph
+@using Microsoft.Identity.Client
+@using Microsoft.Identity.Web
+@using System.Security.Claims
+@inject GraphServiceClient GraphClient
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentAndConditionalAccessHandler
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello!</h1>
+
+This is an example of Authentication and Authorization in a Server Side Blazor application
+using the Microsoft Identity Web library.
+
+@if (claims.Count() > 0 && ready)
+{
+    <p>You are @MemberName. Your phone number is @claims </p>
+   
+}
+else
+{
+    <p>@authMessage</p>
+}
+
+
+@code
+{
+    private bool ready { get; set; } = false;
+    private string MemberName { get; set; }
+    private string authMessage { get; set; }
+
+    private string claims { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPermissionsData();
+        ready = true;
+    }
+
+  
+
+    private async Task GetPermissionsData()
+    {
+        var request = GraphClient.Me;
+        var user = await request.GetAsync();
+            
+        MemberName = user.DisplayName;
+
+        if (MemberName is not null && user.UserPrincipalName is not null)
+        {
+            authMessage = $"{MemberName} is authenticated.";
+            claims = user.MobilePhone;
+        }
+        else
+        {
+            authMessage = "The user is NOT authenticated.";
+        }
+    }
+}
