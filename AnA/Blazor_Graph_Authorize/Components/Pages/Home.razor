@@ -5,7 +5,6 @@
 @using Microsoft.Identity.Web
 @using System.Security.Claims
 @inject GraphServiceClient GraphClient
-@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentAndConditionalAccessHandler
 
 <PageTitle>Home</PageTitle>
 
@@ -14,7 +13,7 @@
 This is an example of Authentication and Authorization in a Server Side Blazor application
 using the Microsoft Identity Web library.
 
-@if (claims.Count() > 0 && ready)
+@if (! string.IsNullOrEmpty(claims) && ready)
 {
     <p>You are @MemberName. Your phone number is @claims </p>
    
@@ -41,7 +40,7 @@ else
     }
 
   
-
+ 
     private async Task GetPermissionsData()
     {
         var request = GraphClient.Me;
