@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnA_MultiTenant", "AnA_MultiTenant\AnA_MultiTenant.csproj", "{F0605024-173F-4E88-96DC-62F8E57B1877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor_Graph_Authorize", "Blazor_Graph_Authorize\Blazor_Graph_Authorize.csproj", "{9F07ACCA-884F-4FC7-815A-44FE4577E695}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blazor_Graph_Authorize", "Blazor_Graph_Authorize\Blazor_Graph_Authorize.csproj", "{9F07ACCA-884F-4FC7-815A-44FE4577E695}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

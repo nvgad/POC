@@ -10,7 +10,13 @@ using System;
 using Microsoft.Graph.Models;
 using Microsoft.Extensions.Azure;
 using Microsoft.Graph;
+using Microsoft.Graph.Core;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Graph.Models.ExternalConnectors;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Web.TokenCacheProviders.Session;
+using Microsoft.Identity.Web.TokenCacheProviders.Distributed;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
@@ -28,55 +34,57 @@ var client = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
 var ClientId = client.GetSecret("ClientId").Value.Value;
 var TenantId = client.GetSecret("TenantId").Value.Value;
 var ClientSecret = client.GetSecret("ClientSecret").Value.Value;
-var Instance = builder.Configuration.GetValue<string>("AzureAd:Instance");
-var Domain = builder.Configuration.GetValue<string>("AzureAd:Domain");
-var CallbackPath = builder.Configuration.GetValue<string>("AzureAd:CallbackPath");
+//var ClientSecret = "hXh8Q~ggfstYsynMfk1zHRco2fkmeDI4xDDqIa5T";
 
-//builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
-builder.Services.AddAuthentication()
-.AddMicrosoftIdentityWebApp(options =>
-{
-    options.ClientSecret = ClientSecret;
-    options.ClientId = ClientId;
-    options.TenantId = TenantId;
-    options.Instance = Instance;
-    options.Domain = Domain;
-    options.CallbackPath = CallbackPath;
-}, cookieScheme: null)
-    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-        .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
-        .AddInMemoryTokenCaches();
+//var Instance = builder.Configuration.GetValue<string>("AzureAd:Instance");
+//var Domain = builder.Configuration.GetValue<string>("AzureAd:Domain");
+//var CallbackPath = builder.Configuration.GetValue<string>("AzureAd:CallbackPath");
+
+
 
 
 //var scopes = new[] { ".default" };
+var scopes = initialScopes;
 //var scopes = new[] { "user.read" };
-//var clientSecretCredential = new ClientSecretCredential(
-//TenantId, ClientId, ClientSecret);
-//var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
-//builder.Services.AddSingleton(graphClient);
+var clientSecretCredential = new ClientSecretCredential(
+TenantId, ClientId, ClientSecret);
+var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+builder.Services.AddSingleton(graphClient);
 
 
-//builder.Services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme,
-//                        options =>
-//                        {
-//                            options.ClientId = ClientId;
-//                            options.ClientSecret = ClientSecret;
-//                            options.Authority = "https://login.microsoftonline.com/" + TenantId + "/v2.0/";
-//                        });
-
-//builder.Configuration.Bind("AzureAd");
-//builder.Configuration.Bind("ClientId", ClientId);
-//builder.Configuration.Bind("TenantId", TenantId);
-//builder.Configuration.Bind("ClientSecret", ClientSecret);
+builder.Configuration.Bind("AzureAd");
 
 
+var inMemorySettings = new Dictionary<string, string> {
+   {"AzureAd:ClientId", ClientId },
+    {"AzureAd:ClientSecret", ClientSecret },
+    //{"AzureAd:ClientSecret", "hXh8Q~ggfstYsynMfk1zHRco2fkmeDI4xDDqIa5T" },
+
+    {"AzureAd:TenantId", TenantId }
+};
 
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-//        .RequireAuthenticatedUser().Build();
-//});
+var configurationBuilder = new ConfigurationBuilder();
+configurationBuilder.AddInMemoryCollection(inMemorySettings);
+var configuration = configurationBuilder.Build();
+builder.Configuration.AddConfiguration(configuration);
+
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration)
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddMicrosoftGraph(builder.Configuration.GetSection("DownstreamApi"))
+    .AddInMemoryTokenCaches();
+
+
+builder.Services.AddAuthorization(options =>
+{
+    // By default, all incoming requests will be authorized according to the default policy
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+
 
 var app = builder.Build();
 
@@ -90,6 +98,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+
+app.UseRouting();
 app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

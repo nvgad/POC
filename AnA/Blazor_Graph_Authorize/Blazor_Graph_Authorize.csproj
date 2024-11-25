@@ -7,10 +7,25 @@
     <UserSecretsId>2ec62189-ec8a-441c-9877-ba33b8793d4d</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Web" Version="2.18.2" />
-    <PackageReference Include="Microsoft.Identity.Web.GraphServiceClient" Version="2.18.2" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.18.2" />
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\narupoc2 - Web Deploy.pubxml" />
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\narupoc2 - Web Deploy.pubxml.removeThis" />
+    <_WebToolingArtifacts Remove="Properties\ServiceDependencies\narupoc2 - Web Deploy\profile.arm.json.notworking" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.ActiveDirectory.GraphClient" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.4.0" />
+    <PackageReference Include="Microsoft.Identity.Web.GraphServiceClient" Version="3.4.0" />
+    <PackageReference Include="Microsoft.Identity.Web.TokenCache" Version="3.4.0" />
   </ItemGroup>
 
 </Project>

@@ -21,7 +21,7 @@
     },
     "resourceName": {
       "type": "string",
-      "defaultValue": "narupocs",
+      "defaultValue": "narupoc3",
       "metadata": {
         "description": "Name of the main resource to be created by this template."
       }
