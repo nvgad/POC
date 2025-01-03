@@ -1,13 +1,13 @@
-name: Build and deploy .NET application to container app acatest1
+name: Build and deploy .NET application to container app acatest2
 on:
   push:
     branches:
     - main
 env:
-  CONTAINER_APP_CONTAINER_NAME: bootstrap-container-pre-deployment
-  CONTAINER_APP_NAME: acatest1
-  CONTAINER_APP_RESOURCE_GROUP_NAME: ACATest1
-  CONTAINER_REGISTRY_LOGIN_SERVER: acatrials120250103140750.azurecr.io
+  CONTAINER_APP_CONTAINER_NAME: acatest2-build7dde8
+  CONTAINER_APP_NAME: acatest2
+  CONTAINER_APP_RESOURCE_GROUP_NAME: ACATest2
+  CONTAINER_REGISTRY_LOGIN_SERVER: acatrials120250103153830.azurecr.io
   DOTNET_CORE_VERSION: 7.0.x
   PROJECT_NAME_FOR_DOCKER: acatrials1
 jobs:
@@ -25,8 +25,8 @@ jobs:
       uses: azure/docker-login@v1
       with:
         login-server: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}
-        username: ${{ secrets.ACATrials120250103140750_USERNAME_C2A8 }}
-        password: ${{ secrets.ACATrials120250103140750_PASSWORD_C2A8 }}
+        username: ${{ secrets.ACATrials120250103153830_USERNAME_5ACC }}
+        password: ${{ secrets.ACATrials120250103153830_PASSWORD_5ACC }}
     - name: Build and push container image to registry
       run: dotnet publish -c Release -r linux-x64 -p:PublishProfile=DefaultContainer -p:ContainerImageTag=${{ github.sha }} --no-self-contained -p:ContainerRegistry=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -bl
     - name: Upload binlog for investigation
@@ -42,14 +42,14 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.acatest1_SPN }}
+        creds: ${{ secrets.acatest2_SPN }}
     - name: Deploy to containerapp
       uses: azure/CLI@v1
       with:
         inlineScript: >
           az config set extension.use_dynamic_install=yes_without_prompt
 
-          az containerapp registry set --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP_NAME }} --server ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} --username ${{ secrets.ACATrials120250103140750_USERNAME_C2A8 }} --password ${{ secrets.ACATrials120250103140750_PASSWORD_C2A8 }}
+          az containerapp registry set --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP_NAME }} --server ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} --username ${{ secrets.ACATrials120250103153830_USERNAME_5ACC }} --password ${{ secrets.ACATrials120250103153830_PASSWORD_5ACC }}
 
           az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --container-name ${{ env.CONTAINER_APP_CONTAINER_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP_NAME }} --image ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.PROJECT_NAME_FOR_DOCKER }}:${{ github.sha }}
     - name: logout
