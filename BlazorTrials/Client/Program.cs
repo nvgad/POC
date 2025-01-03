@@ -4,7 +4,7 @@ using Radzen;
 
 using TrialPages.Client;
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
+var builder = WebAssemblyHostBuilder.CreateDefault(null);
 
 builder.Services.AddRadzenComponents();
 
