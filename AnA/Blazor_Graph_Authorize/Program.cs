@@ -29,7 +29,6 @@ var initialScopes = builder.Configuration.GetValue<string>("DownstreamApi:Scopes
 // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token.
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-
 var keyVaultEndpoint = new Uri(builder.Configuration.GetValue<string>("AzureAd:SafeUri"));
 var client = new SecretClient(keyVaultEndpoint, new DefaultAzureCredential());
 var ClientId = client.GetSecret("ClientId").Value.Value;
@@ -84,6 +83,7 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 });
+
 
 
 var app = builder.Build();
