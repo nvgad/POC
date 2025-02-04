@@ -1,0 +1,62 @@
+name: Build and deploy .NET application to container app cppa-test2-naru
+on:
+  push:
+    branches:
+    - main
+
+    paths:
+    - 'Blazor_Graph_Authorize/**'
+    #- '.github/workflows/cppa-test2-naru.yml'
+  
+env:
+  CONTAINER_APP_CONTAINER_NAME: bootstrap-container-pre-deployment
+  CONTAINER_APP_NAME: cppa-test2-naru
+  CONTAINER_APP_RESOURCE_GROUP_NAME: cppa-demo-test
+  CONTAINER_REGISTRY_LOGIN_SERVER: cppademo.azurecr.io
+  DOTNET_CORE_VERSION: 8.0.x
+  PROJECT_NAME_FOR_DOCKER: blazor_graph_authorize
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout to the branch
+      uses: actions/checkout@v4
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1.8.0
+      with:
+        include-prerelease: True
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Log in to container registry
+      uses: azure/docker-login@v2
+      with:
+        login-server: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.cppademo_USERNAME_4490 }}
+        password: ${{ secrets.cppademo_PASSWORD_4490 }}
+    - name: Build and push container image to registry
+      run: dotnet publish -c Release -r linux-x64 -p:PublishProfile=DefaultContainer -p:ContainerImageTag=${{ github.sha }} --no-self-contained -p:ContainerRegistry=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -bl
+    - name: Upload binlog for investigation
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: binlog
+        path: msbuild.binlog
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.cppa_test2_naru_SPN }}
+    - name: Deploy to containerapp
+      uses: azure/CLI@v2
+      with:
+        inlineScript: >
+          az config set extension.use_dynamic_install=yes_without_prompt
+
+          az containerapp registry set --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP_NAME }} --server ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} --username ${{ secrets.cppademo_USERNAME_4490 }} --password ${{ secrets.cppademo_PASSWORD_4490 }}
+
+          az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --container-name ${{ env.CONTAINER_APP_CONTAINER_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP_NAME }} --image ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.PROJECT_NAME_FOR_DOCKER }}:${{ github.sha }}
+    - name: logout
+      run: >
+        az logout
