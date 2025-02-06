@@ -12,7 +12,7 @@ using static System.Formats.Asn1.AsnWriter;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
