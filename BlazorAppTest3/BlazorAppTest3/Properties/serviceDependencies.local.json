@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "connectionInfo": "App registration: BlazorServerAppConfigTest, Tenant: CPPApoc (CPPApoc.onmicrosoft.com - Microsoft Entra External ID)",
+      "secretStore": null,
+      "type": "identityapp.secretStore",
+      "connectionId": "AzureAD:ClientSecret"
+    }
+  }
+}
